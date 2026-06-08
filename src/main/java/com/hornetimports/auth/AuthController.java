@@ -98,7 +98,7 @@ public class AuthController {
 
         String token = extractRefreshCookie(request);
         if (token != null) {
-            refreshTokenRepository.deleteById(token);
+            refreshTokenRepository.findByToken(token).ifPresent(refreshTokenRepository::delete);
         }
         if (profile != null) {
             refreshTokenRepository.deleteByUserId(profile.getId());
@@ -111,7 +111,7 @@ public class AuthController {
     private void setRefreshCookie(HttpServletResponse response, String value, int maxAge) {
         Cookie cookie = new Cookie("refresh_token", value);
         cookie.setHttpOnly(true);
-        cookie.setSecure(false); // true en producción (HTTPS)
+        cookie.setSecure(true);
         cookie.setPath("/api/auth");
         cookie.setMaxAge(maxAge);
         response.addCookie(cookie);
