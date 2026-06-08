@@ -19,13 +19,8 @@ public class CloudinaryService {
     @Value("${cloudinary.api-secret}")
     private String apiSecret;
 
-    @Value("${cloudinary.upload-preset}")
-    private String uploadPreset;
-
     public String generarFirma(long timestamp, String folder) {
-        String toSign = String.format(
-                "folder=%s&timestamp=%d&upload_preset=%s%s",
-                folder, timestamp, uploadPreset, apiSecret);
+        String toSign = String.format("folder=%s&timestamp=%d%s", folder, timestamp, apiSecret);
         return sha1(toSign);
     }
 
