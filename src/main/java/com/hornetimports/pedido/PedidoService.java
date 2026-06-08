@@ -3,7 +3,6 @@ package com.hornetimports.pedido;
 import com.hornetimports.cotizador.Cotizacion;
 import com.hornetimports.cotizador.CotizacionRepository;
 import com.hornetimports.cotizador.EstadoCotizacion;
-import com.hornetimports.pago.MercadoPagoService;
 import com.hornetimports.pedido.dto.*;
 import com.hornetimports.user.Profile;
 import com.hornetimports.user.TipoCuenta;
@@ -30,7 +29,6 @@ public class PedidoService {
     private final CotizacionRepository cotizacionRepository;
     private final PedidoRepository     pedidoRepository;
     private final EntityManager        entityManager;
-    private final MercadoPagoService   mercadoPagoService;
 
     @Value("${cripto.usdt.red:TRC-20 (TRON)}")
     private String usdtRed;
@@ -83,11 +81,6 @@ public class PedidoService {
         cotizacionRepository.save(cotizacion);
 
         return switch (req.metodoPago()) {
-            case "mp" -> {
-                String initPoint = mercadoPagoService.crearPreferencia(
-                        pedidoId, cotizacion.getNombreProducto(), cotizacion.getCostoTotalArs());
-                yield new ConfirmarPedidoResponse(pedidoId, "mp", initPoint, null, null);
-            }
             case "cripto" -> {
                 BigDecimal montoUsdt = BigDecimal.valueOf(cotizacion.getDesglose().total)
                         .setScale(2, RoundingMode.HALF_UP);
