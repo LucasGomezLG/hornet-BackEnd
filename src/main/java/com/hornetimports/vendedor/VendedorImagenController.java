@@ -20,7 +20,7 @@ public class VendedorImagenController {
     public ResponseEntity<FirmaResponse> generarFirma(
             @AuthenticationPrincipal Profile user) {
         long timestamp = System.currentTimeMillis() / 1000;
-        String folder = "listings/" + user.getId();
+        String folder = "hornet/listings/" + user.getId();
         String firma = cloudinaryService.generarFirma(timestamp, folder);
         return ResponseEntity.ok(new FirmaResponse(
                 firma, timestamp, folder,

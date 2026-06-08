@@ -134,7 +134,7 @@ public class AdminController {
             @RequestParam(required = false) UUID productoId,
             @AuthenticationPrincipal Profile user) {
         long timestamp = System.currentTimeMillis() / 1000;
-        String folder  = productoId != null ? "tienda/" + productoId : "tienda/temp";
+        String folder  = productoId != null ? "hornet/tienda/" + productoId : "hornet/tienda/temp";
         String firma   = cloudinaryService.generarFirma(timestamp, folder);
         return ResponseEntity.ok(new FirmaResponse(
                 firma, timestamp, folder,
