@@ -139,6 +139,7 @@ public class AdminService {
 
     // ── Pedidos ──────────────────────────────────────────────────────────────
 
+    @Transactional(readOnly = true)
     public Page<PedidoAdminDTO> getPedidos(String estadoStr, String metodoPago, Pageable pageable) {
         EstadoPedido estado = estadoStr != null && !estadoStr.isBlank()
                 ? EstadoPedido.valueOf(estadoStr) : null;

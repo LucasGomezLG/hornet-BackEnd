@@ -45,12 +45,14 @@ public class SolicitudService {
         return SolicitudDTO.from(solicitudRepository.save(s));
     }
 
+    @Transactional(readOnly = true)
     public Page<SolicitudDTO> listarPorUsuario(Profile user, Pageable pageable) {
         return solicitudRepository
                 .findByUserIdOrderByCreatedAtDesc(user.getId(), pageable)
                 .map(SolicitudDTO::from);
     }
 
+    @Transactional(readOnly = true)
     public SolicitudDTO getById(UUID id, Profile user) {
         Solicitud s = getSolicitudConItems(id);
         validarPropietario(s, user);
@@ -129,6 +131,7 @@ public class SolicitudService {
 
     // ── Admin ─────────────────────────────────────────────────────────────────
 
+    @Transactional(readOnly = true)
     public Page<SolicitudAdminDTO> listarAdmin(String estado, Pageable pageable) {
         Page<Solicitud> page = (estado != null && !estado.isBlank())
                 ? solicitudRepository.findByEstadoOrderByCreatedAtDesc(estado, pageable)
@@ -136,6 +139,7 @@ public class SolicitudService {
         return page.map(SolicitudAdminDTO::from);
     }
 
+    @Transactional(readOnly = true)
     public SolicitudAdminDTO getByIdAdmin(UUID id) {
         return SolicitudAdminDTO.from(getSolicitudConItems(id));
     }
