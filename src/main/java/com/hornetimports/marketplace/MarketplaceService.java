@@ -28,6 +28,7 @@ public class MarketplaceService {
 
     // ── Público ──────────────────────────────────────────────────────────────
 
+    @Transactional(readOnly = true)
     public Page<ListingDTO> getListings(String categoria, UUID subcategoriaId, String search, Pageable pageable) {
         String cat  = (categoria != null && !categoria.isBlank()) ? categoria : null;
         String srch = (search    != null && !search.isBlank())    ? search    : null;
@@ -36,6 +37,7 @@ public class MarketplaceService {
                 : listingRepository.buscarSinTexto(cat, subcategoriaId, pageable).map(ListingDTO::from);
     }
 
+    @Transactional(readOnly = true)
     public ListingDTO getListing(UUID id) {
         Listing listing = listingRepository.findActivoById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Listing no encontrado"));
@@ -44,6 +46,7 @@ public class MarketplaceService {
 
     // ── Vendedor ─────────────────────────────────────────────────────────────
 
+    @Transactional(readOnly = true)
     public Page<ListingDTO> getListingsVendedor(Profile vendedor, Pageable pageable) {
         return listingRepository.findByVendedorIdOrderByCreatedAtDesc(vendedor.getId(), pageable)
                 .map(ListingDTO::from);

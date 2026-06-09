@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -15,6 +16,7 @@ public class TiendaService {
 
     private final TiendaRepository tiendaRepository;
 
+    @Transactional(readOnly = true)
     public Page<TiendaProductoDTO> getProductos(String categoria, UUID subcategoriaId, Boolean destacado, String search, Pageable pageable) {
         String cat  = (categoria != null && !categoria.isBlank()) ? categoria : null;
         String srch = (search    != null && !search.isBlank())    ? search    : null;
@@ -37,6 +39,7 @@ public class TiendaService {
         return tiendaRepository.findByActivoTrue(pageable).map(TiendaProductoDTO::from);
     }
 
+    @Transactional(readOnly = true)
     public TiendaProductoDTO getProducto(UUID id) {
         TiendaProducto p = tiendaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado"));
