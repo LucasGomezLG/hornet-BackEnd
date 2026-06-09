@@ -28,7 +28,9 @@ public class MarketplaceService {
     public Page<ListingDTO> getListings(String categoria, String search, Pageable pageable) {
         String cat  = (categoria != null && !categoria.isBlank()) ? categoria : null;
         String srch = (search    != null && !search.isBlank())    ? search    : null;
-        return listingRepository.buscar(cat, srch, pageable).map(ListingDTO::from);
+        return (srch != null)
+                ? listingRepository.buscarConTexto(cat, srch, pageable).map(ListingDTO::from)
+                : listingRepository.buscarSinTexto(cat, pageable).map(ListingDTO::from);
     }
 
     public ListingDTO getListing(UUID id) {
