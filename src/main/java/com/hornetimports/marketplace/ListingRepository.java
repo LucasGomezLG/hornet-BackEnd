@@ -11,29 +11,32 @@ import java.util.UUID;
 
 public interface ListingRepository extends JpaRepository<Listing, UUID> {
 
-    // Búsqueda SIN filtro de texto (search=null) — evita que Hibernate pase null
-    // dentro de CONCAT, lo que causa "function lower(bytea) does not exist" en PG.
+    // Búsqueda SIN texto — evita lower(bytea) en PG cuando search=null
     @Query("""
         SELECT l FROM Listing l JOIN FETCH l.vendedor v
         WHERE l.activo = true
         AND (:categoria IS NULL OR l.categoria = :categoria)
+        AND (:subcategoriaId IS NULL OR l.subcategoria.id = :subcategoriaId)
         ORDER BY l.createdAt DESC
     """)
     Page<Listing> buscarSinTexto(
             @Param("categoria") String categoria,
+            @Param("subcategoriaId") UUID subcategoriaId,
             Pageable pageable);
 
-    // Búsqueda CON filtro de texto — solo se llama cuando search != null.
+    // Búsqueda CON texto — solo se llama cuando search != null
     @Query("""
         SELECT l FROM Listing l JOIN FETCH l.vendedor v
         WHERE l.activo = true
         AND (:categoria IS NULL OR l.categoria = :categoria)
+        AND (:subcategoriaId IS NULL OR l.subcategoria.id = :subcategoriaId)
         AND (LOWER(l.nombre) LIKE LOWER(CONCAT('%', :search, '%'))
              OR LOWER(l.descripcion) LIKE LOWER(CONCAT('%', :search, '%')))
         ORDER BY l.createdAt DESC
     """)
     Page<Listing> buscarConTexto(
             @Param("categoria") String categoria,
+            @Param("subcategoriaId") UUID subcategoriaId,
             @Param("search") String search,
             Pageable pageable);
 

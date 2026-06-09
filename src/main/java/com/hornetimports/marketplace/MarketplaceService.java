@@ -1,5 +1,7 @@
 package com.hornetimports.marketplace;
 
+import com.hornetimports.categoria.Subcategoria;
+import com.hornetimports.categoria.SubcategoriaRepository;
 import com.hornetimports.marketplace.dto.CrearListingRequest;
 import com.hornetimports.marketplace.dto.ListingDTO;
 import com.hornetimports.tipocambio.TipoCambioService;
@@ -20,17 +22,18 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MarketplaceService {
 
-    private final ListingRepository listingRepository;
-    private final TipoCambioService tipoCambioService;
+    private final ListingRepository    listingRepository;
+    private final TipoCambioService    tipoCambioService;
+    private final SubcategoriaRepository subcategoriaRepository;
 
     // ── Público ──────────────────────────────────────────────────────────────
 
-    public Page<ListingDTO> getListings(String categoria, String search, Pageable pageable) {
+    public Page<ListingDTO> getListings(String categoria, UUID subcategoriaId, String search, Pageable pageable) {
         String cat  = (categoria != null && !categoria.isBlank()) ? categoria : null;
         String srch = (search    != null && !search.isBlank())    ? search    : null;
         return (srch != null)
-                ? listingRepository.buscarConTexto(cat, srch, pageable).map(ListingDTO::from)
-                : listingRepository.buscarSinTexto(cat, pageable).map(ListingDTO::from);
+                ? listingRepository.buscarConTexto(cat, subcategoriaId, srch, pageable).map(ListingDTO::from)
+                : listingRepository.buscarSinTexto(cat, subcategoriaId, pageable).map(ListingDTO::from);
     }
 
     public ListingDTO getListing(UUID id) {
@@ -55,6 +58,7 @@ public class MarketplaceService {
         l.setNombre(req.nombre());
         l.setDescripcion(req.descripcion());
         l.setCategoria(req.categoria());
+        l.setSubcategoria(resolverSubcategoria(req.subcategoriaId()));
         l.setPrecioUsd(req.precioUsd());
         l.setPrecioArs(precioArs);
         l.setStock(req.stock());
@@ -71,6 +75,7 @@ public class MarketplaceService {
         l.setNombre(req.nombre());
         l.setDescripcion(req.descripcion());
         l.setCategoria(req.categoria());
+        l.setSubcategoria(resolverSubcategoria(req.subcategoriaId()));
         l.setPrecioUsd(req.precioUsd());
         l.setPrecioArs(calcularPrecioArs(req.precioUsd()));
         l.setStock(req.stock());
@@ -101,6 +106,11 @@ public class MarketplaceService {
             throw new AccessDeniedException("Este listing no te pertenece");
         }
         return l;
+    }
+
+    private Subcategoria resolverSubcategoria(UUID subcategoriaId) {
+        if (subcategoriaId == null) return null;
+        return subcategoriaRepository.findById(subcategoriaId).orElse(null);
     }
 
     private BigDecimal calcularPrecioArs(BigDecimal precioUsd) {

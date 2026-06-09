@@ -19,11 +19,12 @@ public class MarketplaceController {
     @GetMapping
     public ResponseEntity<Page<ListingDTO>> getListings(
             @RequestParam(required = false) String categoria,
+            @RequestParam(required = false) UUID subcategoriaId,
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0")  int page,
             @RequestParam(defaultValue = "24") int size) {
         PageRequest pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(marketplaceService.getListings(categoria, search, pageable));
+        return ResponseEntity.ok(marketplaceService.getListings(categoria, subcategoriaId, search, pageable));
     }
 
     @GetMapping("/{id}")

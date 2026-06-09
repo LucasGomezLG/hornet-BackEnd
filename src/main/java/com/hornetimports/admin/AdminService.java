@@ -79,7 +79,12 @@ public class AdminService {
                 .setParameter("estado", EstadoCotizacion.pendiente)
                 .getSingleResult();
 
-        return new AdminStatsDTO(pedidosHoy, ingresosUsdMes, vendedoresActivos, cotizacionesPendientes);
+        Long solicitudesPendientes = entityManager.createQuery(
+                "SELECT COUNT(s) FROM Solicitud s WHERE s.estado = 'pendiente'", Long.class)
+                .getSingleResult();
+
+        return new AdminStatsDTO(pedidosHoy, ingresosUsdMes, vendedoresActivos,
+                cotizacionesPendientes, solicitudesPendientes);
     }
 
     // ── Cotizaciones ─────────────────────────────────────────────────────────

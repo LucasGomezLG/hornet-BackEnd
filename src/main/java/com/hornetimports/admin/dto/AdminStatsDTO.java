@@ -6,5 +6,6 @@ public record AdminStatsDTO(
         long pedidosHoy,
         BigDecimal ingresosUsdMes,
         long vendedoresActivos,
-        long cotizacionesPendientes
+        long cotizacionesPendientes,
+        long solicitudesPendientes
 ) {}

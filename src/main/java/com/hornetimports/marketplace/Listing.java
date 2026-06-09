@@ -1,5 +1,6 @@
 package com.hornetimports.marketplace;
 
+import com.hornetimports.categoria.Subcategoria;
 import com.hornetimports.user.Profile;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -39,6 +40,10 @@ public class Listing {
 
     @Column(nullable = false)
     private String categoria;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subcategoria_id")
+    private Subcategoria subcategoria;
 
     @Column(name = "imagen_url")
     private String imagenUrl;

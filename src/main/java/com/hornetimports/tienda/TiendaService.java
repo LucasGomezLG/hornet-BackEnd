@@ -15,18 +15,24 @@ public class TiendaService {
 
     private final TiendaRepository tiendaRepository;
 
-    public Page<TiendaProductoDTO> getProductos(String categoria, UUID subcategoriaId, Boolean destacado, Pageable pageable) {
+    public Page<TiendaProductoDTO> getProductos(String categoria, UUID subcategoriaId, Boolean destacado, String search, Pageable pageable) {
+        String cat  = (categoria != null && !categoria.isBlank()) ? categoria : null;
+        String srch = (search    != null && !search.isBlank())    ? search    : null;
+
+        if (srch != null) {
+            return tiendaRepository.buscarConTexto(cat, srch, pageable).map(TiendaProductoDTO::from);
+        }
         if (Boolean.TRUE.equals(destacado)) {
             return tiendaRepository.findByActivoTrueAndDestacadoTrue(pageable).map(TiendaProductoDTO::from);
         }
-        if (subcategoriaId != null && categoria != null) {
-            return tiendaRepository.findByActivoTrueAndCategoriaAndSubcategoriaId(categoria, subcategoriaId, pageable).map(TiendaProductoDTO::from);
+        if (subcategoriaId != null && cat != null) {
+            return tiendaRepository.findByActivoTrueAndCategoriaAndSubcategoriaId(cat, subcategoriaId, pageable).map(TiendaProductoDTO::from);
         }
         if (subcategoriaId != null) {
             return tiendaRepository.findByActivoTrueAndSubcategoriaId(subcategoriaId, pageable).map(TiendaProductoDTO::from);
         }
-        if (categoria != null && !categoria.isBlank()) {
-            return tiendaRepository.findByActivoTrueAndCategoria(categoria, pageable).map(TiendaProductoDTO::from);
+        if (cat != null) {
+            return tiendaRepository.findByActivoTrueAndCategoria(cat, pageable).map(TiendaProductoDTO::from);
         }
         return tiendaRepository.findByActivoTrue(pageable).map(TiendaProductoDTO::from);
     }

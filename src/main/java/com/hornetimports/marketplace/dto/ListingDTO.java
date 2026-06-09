@@ -11,6 +11,7 @@ public record ListingDTO(
         String descripcion,
         String vendedorNombre,
         String categoria,
+        UUID subcategoriaId,
         BigDecimal precioUsd,
         BigDecimal precioArs,
         int stock,
@@ -20,9 +21,10 @@ public record ListingDTO(
         String vendNombre = l.getVendedor().getNombre() != null
                 ? l.getVendedor().getNombre()
                 : l.getVendedor().getEmail();
+        UUID subId = l.getSubcategoria() != null ? l.getSubcategoria().getId() : null;
         return new ListingDTO(
                 l.getId(), l.getNombre(), l.getDescripcion(),
-                vendNombre, l.getCategoria(),
+                vendNombre, l.getCategoria(), subId,
                 l.getPrecioUsd(), l.getPrecioArs(), l.getStock(), l.getImagenUrl());
     }
 }
