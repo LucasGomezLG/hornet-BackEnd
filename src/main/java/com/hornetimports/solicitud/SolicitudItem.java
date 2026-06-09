@@ -59,7 +59,7 @@ public class SolicitudItem {
     @Column(name = "costo_total_ars", precision = 14, scale = 2)
     private BigDecimal costoTotalArs;
 
-    @Column(columnDefinition = "jsonb")
+    @Column
     private String desglose;
 
     @Column(name = "nota_item")
