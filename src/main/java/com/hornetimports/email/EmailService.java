@@ -28,10 +28,11 @@ public class EmailService {
 
     public void sendCotizacionAprobada(String to, String productoNombre, UUID cotizacionId) {
         String link = frontendUrl + "/solicitar/" + cotizacionId;
+        String safe = esc(productoNombre);
         sendHtml(to,
-                "Tu cotización está lista — " + productoNombre,
+                "Tu cotización está lista — " + safe,
                 "<h2>¡Buenas noticias!</h2>" +
-                "<p>Tu cotización para <strong>" + productoNombre + "</strong> fue aprobada.</p>" +
+                "<p>Tu cotización para <strong>" + safe + "</strong> fue aprobada.</p>" +
                 "<p>Hacé clic en el botón para confirmar tu pedido:</p>" +
                 "<p><a href='" + link + "' style='background:#F5B800;color:#111;padding:12px 24px;" +
                 "text-decoration:none;font-weight:bold;border-radius:4px;'>Confirmar pedido →</a></p>" +
@@ -39,32 +40,34 @@ public class EmailService {
     }
 
     public void sendCotizacionRechazada(String to, String productoNombre, String motivo) {
+        String safe = esc(productoNombre);
         sendHtml(to,
-                "Actualización sobre tu cotización — " + productoNombre,
+                "Actualización sobre tu cotización — " + safe,
                 "<h2>Sobre tu cotización</h2>" +
-                "<p>No pudimos procesar tu solicitud de <strong>" + productoNombre + "</strong>.</p>" +
-                "<p><strong>Motivo:</strong> " + motivo + "</p>" +
+                "<p>No pudimos procesar tu solicitud de <strong>" + safe + "</strong>.</p>" +
+                "<p><strong>Motivo:</strong> " + esc(motivo) + "</p>" +
                 "<p>Podés enviar una nueva cotización en cualquier momento desde nuestra web.</p>");
     }
 
     // ── Pedidos ──────────────────────────────────────────────────────────────
 
     public void sendPedidoConfirmado(String to, String productoNombre, String pedidoId) {
+        String safe = esc(productoNombre);
         sendHtml(to,
-                "Pedido confirmado — " + productoNombre,
+                "Pedido confirmado — " + safe,
                 "<h2>Tu pedido fue confirmado</h2>" +
-                "<p>Número de pedido: <strong>" + pedidoId + "</strong></p>" +
-                "<p>Producto: <strong>" + productoNombre + "</strong></p>" +
+                "<p>Número de pedido: <strong>" + esc(pedidoId) + "</strong></p>" +
+                "<p>Producto: <strong>" + safe + "</strong></p>" +
                 "<p>Tu pago fue recibido. Te contactamos en menos de 24 hs hábiles para coordinar.</p>");
     }
 
     public void sendNuevoPedido(String adminEmail, String productoNombre, String pedidoId, String metodoPago) {
         sendHtml(adminEmail,
-                "[Hornet] Nuevo pedido — " + pedidoId,
+                "[Hornet] Nuevo pedido — " + esc(pedidoId),
                 "<h2>Nuevo pedido recibido</h2>" +
-                "<p>Pedido: <strong>" + pedidoId + "</strong></p>" +
-                "<p>Producto: " + productoNombre + "</p>" +
-                "<p>Método de pago: <strong>" + metodoPago + "</strong></p>");
+                "<p>Pedido: <strong>" + esc(pedidoId) + "</strong></p>" +
+                "<p>Producto: " + esc(productoNombre) + "</p>" +
+                "<p>Método de pago: <strong>" + esc(metodoPago) + "</strong></p>");
     }
 
     // ── Solicitudes ───────────────────────────────────────────────────────────
@@ -74,7 +77,7 @@ public class EmailService {
         String productos = cantItems == 1 ? "1 producto" : cantItems + " productos";
         sendHtml(to,
                 "Tu solicitud fue cotizada — " + productos,
-                "<h2>¡Hola, " + nombre + "!</h2>" +
+                "<h2>¡Hola, " + esc(nombre) + "!</h2>" +
                 "<p>Revisamos tu solicitud de " + productos + " y ya tenés los precios listos.</p>" +
                 "<p><strong>Tenés 3 días para confirmar.</strong> Después de ese plazo, la solicitud expira.</p>" +
                 "<p><a href='" + link + "' style='background:#F5B800;color:#111;padding:12px 24px;" +
@@ -84,11 +87,12 @@ public class EmailService {
     }
 
     public void sendSenaConfirmada(String to, String productoNombre, String pedidoId) {
+        String safe = esc(productoNombre);
         sendHtml(to,
-                "Seña confirmada — " + productoNombre,
+                "Seña confirmada — " + safe,
                 "<h2>¡Seña recibida!</h2>" +
-                "<p>Pedido: <strong>" + pedidoId + "</strong></p>" +
-                "<p>Producto: <strong>" + productoNombre + "</strong></p>" +
+                "<p>Pedido: <strong>" + esc(pedidoId) + "</strong></p>" +
+                "<p>Producto: <strong>" + safe + "</strong></p>" +
                 "<p>Recibimos tu seña. Hornet ya está gestionando la compra. " +
                 "Te avisamos cuando el producto esté en camino.</p>");
     }
@@ -96,11 +100,12 @@ public class EmailService {
     public void sendProductoLlegoABsAs(String to, String productoNombre, String pedidoId,
                                        java.math.BigDecimal montoArs) {
         String link = frontendUrl + "/pedidos";
+        String safe = esc(productoNombre);
         sendHtml(to,
-                "Tu producto llegó a Buenos Aires — " + productoNombre,
+                "Tu producto llegó a Buenos Aires — " + safe,
                 "<h2>¡Tu producto llegó a BsAs!</h2>" +
-                "<p>Pedido: <strong>" + pedidoId + "</strong></p>" +
-                "<p>Producto: <strong>" + productoNombre + "</strong></p>" +
+                "<p>Pedido: <strong>" + esc(pedidoId) + "</strong></p>" +
+                "<p>Producto: <strong>" + safe + "</strong></p>" +
                 "<p>Monto a pagar: <strong>$" + montoArs.toPlainString() + " ARS</strong></p>" +
                 "<p>Ingresá a tu panel para elegir el método de pago y coordinar la entrega.</p>" +
                 "<p><a href='" + link + "' style='background:#F5B800;color:#111;padding:12px 24px;" +
@@ -108,11 +113,12 @@ public class EmailService {
     }
 
     public void sendSaldoConfirmado(String to, String productoNombre, String pedidoId) {
+        String safe = esc(productoNombre);
         sendHtml(to,
-                "Pago confirmado — " + productoNombre,
+                "Pago confirmado — " + safe,
                 "<h2>¡Pago recibido!</h2>" +
-                "<p>Pedido: <strong>" + pedidoId + "</strong></p>" +
-                "<p>Producto: <strong>" + productoNombre + "</strong></p>" +
+                "<p>Pedido: <strong>" + esc(pedidoId) + "</strong></p>" +
+                "<p>Producto: <strong>" + safe + "</strong></p>" +
                 "<p>Recibimos tu pago. Coordinaremos la entrega a la brevedad.</p>");
     }
 
@@ -120,10 +126,11 @@ public class EmailService {
 
     public void sendInstruccionesCripto(String to, String pedidoId,
                                         String walletAddress, BigDecimal montoUsdt) {
+        String safeId = esc(pedidoId);
         sendHtml(to,
-                "Instrucciones de pago — Pedido " + pedidoId,
+                "Instrucciones de pago — Pedido " + safeId,
                 "<h2>Instrucciones para pagar con USDT</h2>" +
-                "<p>Pedido: <strong>" + pedidoId + "</strong></p>" +
+                "<p>Pedido: <strong>" + safeId + "</strong></p>" +
                 "<p>Monto: <strong>" + montoUsdt + " USDT</strong></p>" +
                 "<p>Red: <strong>TRC-20 (TRON)</strong></p>" +
                 "<p>Dirección: <code style='background:#f5f5f5;padding:4px 8px;'>" + walletAddress + "</code></p>" +
@@ -135,31 +142,42 @@ public class EmailService {
                                                String cbu, String alias,
                                                String banco, String titular,
                                                BigDecimal montoArs) {
+        String safeId = esc(pedidoId);
         sendHtml(to,
-                "Instrucciones de pago — Pedido " + pedidoId,
+                "Instrucciones de pago — Pedido " + safeId,
                 "<h2>Instrucciones para pagar por transferencia</h2>" +
-                "<p>Pedido: <strong>" + pedidoId + "</strong></p>" +
-                "<p>Monto: <strong>$" + montoArs + " ARS</strong></p>" +
+                "<p>Pedido: <strong>" + safeId + "</strong></p>" +
+                "<p>Monto: <strong>$" + montoArs.toPlainString() + " ARS</strong></p>" +
                 "<table style='border-collapse:collapse;'>" +
-                "<tr><td style='padding:4px 12px 4px 0'><strong>Banco:</strong></td><td>" + banco + "</td></tr>" +
-                "<tr><td style='padding:4px 12px 4px 0'><strong>Titular:</strong></td><td>" + titular + "</td></tr>" +
-                "<tr><td style='padding:4px 12px 4px 0'><strong>CBU:</strong></td><td><code>" + cbu + "</code></td></tr>" +
-                "<tr><td style='padding:4px 12px 4px 0'><strong>Alias:</strong></td><td><code>" + alias + "</code></td></tr>" +
+                "<tr><td style='padding:4px 12px 4px 0'><strong>Banco:</strong></td><td>" + esc(banco) + "</td></tr>" +
+                "<tr><td style='padding:4px 12px 4px 0'><strong>Titular:</strong></td><td>" + esc(titular) + "</td></tr>" +
+                "<tr><td style='padding:4px 12px 4px 0'><strong>CBU:</strong></td><td><code>" + esc(cbu) + "</code></td></tr>" +
+                "<tr><td style='padding:4px 12px 4px 0'><strong>Alias:</strong></td><td><code>" + esc(alias) + "</code></td></tr>" +
                 "</table>" +
-                "<p>Incluí el ID <strong>" + pedidoId + "</strong> en el concepto de la transferencia.</p>" +
+                "<p>Incluí el ID <strong>" + safeId + "</strong> en el concepto de la transferencia.</p>" +
                 "<p style='color:#6B6B6B;'>Tu pedido se activa dentro de 1-24 hs hábiles tras validar el pago.</p>");
     }
 
     public void sendAlertaPagoManualPendiente(String adminEmail, String pedidoId, String metodoPago) {
+        String safeId = esc(pedidoId);
         sendHtml(adminEmail,
-                "[Hornet] Pago pendiente de validación — " + pedidoId,
+                "[Hornet] Pago pendiente de validación — " + safeId,
                 "<h2>Pago manual pendiente</h2>" +
-                "<p>El pedido <strong>" + pedidoId + "</strong> está esperando validación de pago.</p>" +
-                "<p>Método: <strong>" + metodoPago + "</strong></p>" +
+                "<p>El pedido <strong>" + safeId + "</strong> está esperando validación de pago.</p>" +
+                "<p>Método: <strong>" + esc(metodoPago) + "</strong></p>" +
                 "<p>Ingresá al panel de admin para confirmar el pago.</p>");
     }
 
     // ── Interno ───────────────────────────────────────────────────────────────
+
+    private static String esc(String s) {
+        if (s == null) return "";
+        return s.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
+    }
 
     private void sendHtml(String to, String subject, String htmlBody) {
         try {

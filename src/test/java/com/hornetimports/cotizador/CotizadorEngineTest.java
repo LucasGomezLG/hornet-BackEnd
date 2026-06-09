@@ -7,6 +7,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.Assertions.*;
 
 class CotizadorEngineTest {
@@ -16,7 +18,8 @@ class CotizadorEngineTest {
     private static CotizarRequest req(double precio, double peso,
                                       String categoria, String tipo,
                                       String tipoServicio, String origen) {
-        return new CotizarRequest("https://example.com", "Test", precio, peso,
+        return new CotizarRequest("https://example.com", "Test",
+                BigDecimal.valueOf(precio), BigDecimal.valueOf(peso),
                 categoria, tipo, tipoServicio, origen);
     }
 

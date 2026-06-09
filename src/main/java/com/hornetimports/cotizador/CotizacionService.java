@@ -41,8 +41,8 @@ public class CotizacionService {
         c.setUserId(user != null ? user.getId() : null);
         c.setProductoUrl(request.productoUrl());
         c.setNombreProducto(request.nombreProducto());
-        c.setPrecioUsd(BigDecimal.valueOf(request.precioUsd()));
-        c.setPesoKg(BigDecimal.valueOf(request.pesoKg()));
+        c.setPrecioUsd(request.precioUsd());
+        c.setPesoKg(request.pesoKg());
         c.setCategoria(request.categoriaId());
         c.setCostoTotalArs(BigDecimal.valueOf(resultado.desglose().totalArs));
         c.setDesglose(resultado.desglose());

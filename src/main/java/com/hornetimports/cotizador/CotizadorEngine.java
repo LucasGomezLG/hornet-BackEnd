@@ -27,6 +27,9 @@ public class CotizadorEngine {
     }
 
     public CotizarResponse calcular(CotizarRequest req, double tipoCambio) {
+        double precioUsd = req.precioUsd().doubleValue();
+        double pesoKg    = req.pesoKg().doubleValue();
+
         Categoria cat = Categoria.getById(req.categoriaId());
         if (cat == null) {
             return new CotizarResponse(false, null, null, "categoria_invalida");
@@ -34,10 +37,10 @@ public class CotizadorEngine {
         if (cat.blacklist) {
             return new CotizarResponse(false, null, null, "categoria_manual");
         }
-        if (req.precioUsd() <= 0) {
+        if (precioUsd <= 0) {
             return new CotizarResponse(false, null, null, "precio_invalido");
         }
-        if (req.pesoKg() <= 0 || req.pesoKg() > 30) {
+        if (pesoKg <= 0 || pesoKg > 30) {
             return new CotizarResponse(false, null, null, "peso_invalido");
         }
 
@@ -47,13 +50,13 @@ public class CotizadorEngine {
         double precioMin = forwarding
                 ? PRECIO_MIN_FORWARDING
                 : (mayorista ? PRECIO_MIN_MAYORISTA_COMPLETO : PRECIO_MIN_PARTICULAR_COMPLETO);
-        if (req.precioUsd() < precioMin) {
+        if (precioUsd < precioMin) {
             return new CotizarResponse(false, null, null, "precio_minimo_" + precioMin);
         }
 
-        double pesoFacturable     = redondearAlMedio(req.pesoKg());
+        double pesoFacturable     = redondearAlMedio(pesoKg);
         double costoFlete         = pesoFacturable * FLETE_POR_KG;
-        double cif                = req.precioUsd() + costoFlete;
+        double cif                = precioUsd + costoFlete;
 
         double arancelImportacion = cif * cat.tasaArancel;
         double ivaImportacion     = (cif + arancelImportacion) * IVA_IMPORTACION;
@@ -71,7 +74,7 @@ public class CotizadorEngine {
         double totalArs = total * tipoCambio;
 
         CotizacionDesglose d = new CotizacionDesglose();
-        d.precioProducto    = req.precioUsd();
+        d.precioProducto    = precioUsd;
         d.pesoFacturable    = pesoFacturable;
         d.costoFlete        = costoFlete;
         d.cif               = cif;
@@ -86,7 +89,7 @@ public class CotizadorEngine {
         d.tipoImportacion   = req.tipo();
         d.tipoServicio      = req.tipoServicio();
         d.incluyeProducto   = !forwarding;
-        d.alertaOrigenEuropa = "europa".equals(req.origen()) && req.precioUsd() > 100;
+        d.alertaOrigenEuropa = "europa".equals(req.origen()) && precioUsd > 100;
 
         return new CotizarResponse(true, null, d, null);
     }

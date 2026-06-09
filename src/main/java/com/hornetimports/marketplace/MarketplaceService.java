@@ -102,6 +102,7 @@ public class MarketplaceService {
     }
 
     private BigDecimal calcularPrecioArs(BigDecimal precioUsd) {
+        if (precioUsd == null) return BigDecimal.ZERO;
         double rate = tipoCambioService.obtenerRate();
         return precioUsd.multiply(BigDecimal.valueOf(rate)).setScale(2, RoundingMode.HALF_UP);
     }

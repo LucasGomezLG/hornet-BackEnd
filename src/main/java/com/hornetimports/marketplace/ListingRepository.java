@@ -16,9 +16,9 @@ public interface ListingRepository extends JpaRepository<Listing, UUID> {
         JOIN FETCH l.vendedor v
         WHERE l.activo = true
         AND (:categoria IS NULL OR l.categoria = :categoria)
-        AND (CAST(:search AS String) IS NULL OR
-             LOWER(l.nombre) LIKE LOWER(CONCAT('%', CAST(:search AS String), '%')) OR
-             LOWER(l.descripcion) LIKE LOWER(CONCAT('%', CAST(:search AS String), '%')))
+        AND (:search IS NULL OR
+             LOWER(l.nombre) LIKE LOWER(CONCAT('%', :search, '%')) OR
+             LOWER(l.descripcion) LIKE LOWER(CONCAT('%', :search, '%')))
         ORDER BY l.createdAt DESC
     """)
     Page<Listing> buscar(

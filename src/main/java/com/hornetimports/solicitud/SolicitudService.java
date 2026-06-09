@@ -178,8 +178,8 @@ public class SolicitudService {
         getItem(solicitudId, itemId);
 
         CotizarRequest cotReq = new CotizarRequest(
-                "", "", precioUsd, pesoKg, categoria, tipo, tipoServicio,
-                origen != null ? origen : "otro");
+                "", "", java.math.BigDecimal.valueOf(precioUsd), java.math.BigDecimal.valueOf(pesoKg),
+                categoria, tipo, tipoServicio, origen != null ? origen : "otro");
         return cotizadorEngine.calcular(cotReq, tipoCambioService.obtenerRate());
     }
 
