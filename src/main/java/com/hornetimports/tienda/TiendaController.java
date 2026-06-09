@@ -19,11 +19,12 @@ public class TiendaController {
     @GetMapping
     public ResponseEntity<Page<TiendaProductoDTO>> getProductos(
             @RequestParam(required = false) String categoria,
+            @RequestParam(required = false) UUID subcategoriaId,
             @RequestParam(required = false) Boolean destacado,
             @RequestParam(defaultValue = "0")  int page,
             @RequestParam(defaultValue = "24") int size) {
         PageRequest pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(tiendaService.getProductos(categoria, destacado, pageable));
+        return ResponseEntity.ok(tiendaService.getProductos(categoria, subcategoriaId, destacado, pageable));
     }
 
     @GetMapping("/{id}")

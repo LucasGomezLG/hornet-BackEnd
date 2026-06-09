@@ -15,9 +15,15 @@ public class TiendaService {
 
     private final TiendaRepository tiendaRepository;
 
-    public Page<TiendaProductoDTO> getProductos(String categoria, Boolean destacado, Pageable pageable) {
+    public Page<TiendaProductoDTO> getProductos(String categoria, UUID subcategoriaId, Boolean destacado, Pageable pageable) {
         if (Boolean.TRUE.equals(destacado)) {
             return tiendaRepository.findByActivoTrueAndDestacadoTrue(pageable).map(TiendaProductoDTO::from);
+        }
+        if (subcategoriaId != null && categoria != null) {
+            return tiendaRepository.findByActivoTrueAndCategoriaAndSubcategoriaId(categoria, subcategoriaId, pageable).map(TiendaProductoDTO::from);
+        }
+        if (subcategoriaId != null) {
+            return tiendaRepository.findByActivoTrueAndSubcategoriaId(subcategoriaId, pageable).map(TiendaProductoDTO::from);
         }
         if (categoria != null && !categoria.isBlank()) {
             return tiendaRepository.findByActivoTrueAndCategoria(categoria, pageable).map(TiendaProductoDTO::from);

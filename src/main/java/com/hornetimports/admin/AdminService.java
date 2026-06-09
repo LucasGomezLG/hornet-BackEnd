@@ -1,6 +1,8 @@
 package com.hornetimports.admin;
 
 import com.hornetimports.admin.dto.*;
+import com.hornetimports.categoria.Subcategoria;
+import com.hornetimports.categoria.SubcategoriaRepository;
 import com.hornetimports.cotizador.Cotizacion;
 import com.hornetimports.cotizador.CotizacionRepository;
 import com.hornetimports.cotizador.EstadoCotizacion;
@@ -34,13 +36,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AdminService {
 
-    private final CotizacionRepository cotizacionRepository;
-    private final PedidoRepository     pedidoRepository;
-    private final ProfileRepository    profileRepository;
-    private final ListingRepository    listingRepository;
-    private final TiendaRepository     tiendaRepository;
-    private final EmailService         emailService;
-    private final EntityManager        entityManager;
+    private final CotizacionRepository    cotizacionRepository;
+    private final PedidoRepository        pedidoRepository;
+    private final ProfileRepository       profileRepository;
+    private final ListingRepository       listingRepository;
+    private final TiendaRepository        tiendaRepository;
+    private final SubcategoriaRepository  subcategoriaRepository;
+    private final EmailService            emailService;
+    private final EntityManager           entityManager;
 
     @Value("${email.admin:admin@hornetimports.com}")
     private String adminEmail;
@@ -322,5 +325,11 @@ public class AdminService {
         p.setStock(req.stock());
         p.setDestacado(req.destacado());
         if (req.imagenUrl() != null) p.setImagenUrl(req.imagenUrl());
+        if (req.subcategoriaId() != null) {
+            Subcategoria sub = subcategoriaRepository.findById(req.subcategoriaId()).orElse(null);
+            p.setSubcategoria(sub);
+        } else {
+            p.setSubcategoria(null);
+        }
     }
 }

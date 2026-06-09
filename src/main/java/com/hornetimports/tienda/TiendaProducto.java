@@ -1,5 +1,6 @@
 package com.hornetimports.tienda;
 
+import com.hornetimports.categoria.Subcategoria;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +36,10 @@ public class TiendaProducto {
 
     @Column(name = "imagen_url")
     private String imagenUrl;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subcategoria_id")
+    private Subcategoria subcategoria;
 
     @Column(nullable = false)
     private int stock;
