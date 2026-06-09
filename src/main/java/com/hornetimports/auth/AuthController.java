@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,6 +30,9 @@ public class AuthController {
     private final RefreshTokenRepository refreshTokenRepository;
     private final com.hornetimports.user.ProfileRepository profileRepository;
     private final JwtConfig jwtConfig;
+
+    @Value("${auth.cookie.secure:false}")
+    private boolean cookieSecure;
 
     @PostMapping("/google")
     public ResponseEntity<LoginResponse> loginWithGoogle(
@@ -111,7 +115,7 @@ public class AuthController {
     private void setRefreshCookie(HttpServletResponse response, String value, int maxAge) {
         Cookie cookie = new Cookie("refresh_token", value);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+        cookie.setSecure(cookieSecure);
         cookie.setPath("/api/auth");
         cookie.setMaxAge(maxAge);
         response.addCookie(cookie);

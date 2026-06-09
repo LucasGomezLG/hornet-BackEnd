@@ -15,23 +15,22 @@ public record SolicitudAdminDTO(
         OffsetDateTime expiresAt,
         List<SolicitudItemDTO> items,
         OffsetDateTime createdAt,
-        // user info
-        UUID userId,
-        String userNombre,
-        String userEmail,
-        String userTelefono
+        UserInfo user
 ) {
+    public record UserInfo(UUID id, String nombre, String email, String telefono) {}
+
     public static SolicitudAdminDTO from(Solicitud s) {
         Profile u = s.getUser();
         String nombre = u.getNombre() != null
                 ? (u.getNombre() + (u.getApellido() != null ? " " + u.getApellido() : ""))
                 : u.getEmail();
+        UserInfo userInfo = new UserInfo(u.getId(), nombre, u.getEmail(), u.getTelefono());
         return new SolicitudAdminDTO(
                 s.getId(), s.getEstado(),
                 s.getNotaCliente(), s.getNotaAdmin(),
                 s.getExpiresAt(),
                 s.getItems().stream().map(SolicitudItemDTO::from).toList(),
                 s.getCreatedAt(),
-                u.getId(), nombre, u.getEmail(), u.getTelefono());
+                userInfo);
     }
 }
