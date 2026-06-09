@@ -36,7 +36,9 @@ public class SecurityConfig {
                     "/api/tienda/**",
                     "/api/marketplace/**",
                     "/api/listings/**",
-                    "/api/seguimiento"
+                    "/api/seguimiento",
+                    "/api/categorias",
+                    "/api/categorias/**"
                 ).permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/vendedor/**").hasAnyRole("VENDEDOR", "ADMIN")
