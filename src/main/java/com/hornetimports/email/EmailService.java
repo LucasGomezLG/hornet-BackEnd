@@ -67,6 +67,55 @@ public class EmailService {
                 "<p>Método de pago: <strong>" + metodoPago + "</strong></p>");
     }
 
+    // ── Solicitudes ───────────────────────────────────────────────────────────
+
+    public void sendSolicitudCotizada(String to, String nombre, java.util.UUID solicitudId, int cantItems) {
+        String link = frontendUrl + "/cotizaciones";
+        String productos = cantItems == 1 ? "1 producto" : cantItems + " productos";
+        sendHtml(to,
+                "Tu solicitud fue cotizada — " + productos,
+                "<h2>¡Hola, " + nombre + "!</h2>" +
+                "<p>Revisamos tu solicitud de " + productos + " y ya tenés los precios listos.</p>" +
+                "<p><strong>Tenés 3 días para confirmar.</strong> Después de ese plazo, la solicitud expira.</p>" +
+                "<p><a href='" + link + "' style='background:#F5B800;color:#111;padding:12px 24px;" +
+                "text-decoration:none;font-weight:bold;border-radius:4px;'>Ver cotización →</a></p>" +
+                "<p style='color:#6B6B6B;font-size:13px;'>El peso declarado es estimado. Si el peso real " +
+                "al llegar a Miami difiere, el costo se ajusta antes del despacho.</p>");
+    }
+
+    public void sendSenaConfirmada(String to, String productoNombre, String pedidoId) {
+        sendHtml(to,
+                "Seña confirmada — " + productoNombre,
+                "<h2>¡Seña recibida!</h2>" +
+                "<p>Pedido: <strong>" + pedidoId + "</strong></p>" +
+                "<p>Producto: <strong>" + productoNombre + "</strong></p>" +
+                "<p>Recibimos tu seña. Hornet ya está gestionando la compra. " +
+                "Te avisamos cuando el producto esté en camino.</p>");
+    }
+
+    public void sendProductoLlegoABsAs(String to, String productoNombre, String pedidoId,
+                                       java.math.BigDecimal montoArs) {
+        String link = frontendUrl + "/pedidos";
+        sendHtml(to,
+                "Tu producto llegó a Buenos Aires — " + productoNombre,
+                "<h2>¡Tu producto llegó a BsAs!</h2>" +
+                "<p>Pedido: <strong>" + pedidoId + "</strong></p>" +
+                "<p>Producto: <strong>" + productoNombre + "</strong></p>" +
+                "<p>Monto a pagar: <strong>$" + montoArs.toPlainString() + " ARS</strong></p>" +
+                "<p>Ingresá a tu panel para elegir el método de pago y coordinar la entrega.</p>" +
+                "<p><a href='" + link + "' style='background:#F5B800;color:#111;padding:12px 24px;" +
+                "text-decoration:none;font-weight:bold;border-radius:4px;'>Ir a mis pedidos →</a></p>");
+    }
+
+    public void sendSaldoConfirmado(String to, String productoNombre, String pedidoId) {
+        sendHtml(to,
+                "Pago confirmado — " + productoNombre,
+                "<h2>¡Pago recibido!</h2>" +
+                "<p>Pedido: <strong>" + pedidoId + "</strong></p>" +
+                "<p>Producto: <strong>" + productoNombre + "</strong></p>" +
+                "<p>Recibimos tu pago. Coordinaremos la entrega a la brevedad.</p>");
+    }
+
     // ── Instrucciones de pago manual ─────────────────────────────────────────
 
     public void sendInstruccionesCripto(String to, String pedidoId,

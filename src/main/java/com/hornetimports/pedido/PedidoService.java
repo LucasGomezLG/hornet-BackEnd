@@ -4,6 +4,8 @@ import com.hornetimports.cotizador.Cotizacion;
 import com.hornetimports.cotizador.CotizacionRepository;
 import com.hornetimports.cotizador.EstadoCotizacion;
 import com.hornetimports.pedido.dto.*;
+import com.hornetimports.solicitud.SolicitudItem;
+import com.hornetimports.solicitud.dto.ConfirmarItemResponse;
 import com.hornetimports.user.Profile;
 import com.hornetimports.user.TipoCuenta;
 import jakarta.persistence.EntityManager;
@@ -103,6 +105,80 @@ public class PedidoService {
                                 transferenciaCbu, transferenciaAlias, monto, "ARS", nota));
             }
             default -> throw new IllegalArgumentException("Método de pago inválido");
+        };
+    }
+
+    @Transactional
+    public ConfirmarItemResponse confirmarDesdeSolicitudItem(
+            SolicitudItem item, Profile user, String metodoPago) {
+
+        Number nextVal = (Number) entityManager
+                .createNativeQuery("SELECT nextval('pedido_seq')").getSingleResult();
+        String pedidoId = String.format("HI-%04d", nextVal.longValue());
+
+        boolean forwarding = "forwarding".equals(item.getTipoServicio());
+
+        Pedido pedido = new Pedido();
+        pedido.setId(pedidoId);
+        pedido.setSolicitudItem(item);
+        pedido.setUser(user);
+        pedido.setProductoNombre(item.getNombreProducto());
+        pedido.setProductoUrl(item.getUrlProducto());
+        pedido.setPrecioUsd(item.getPrecioFinalUsd());
+        pedido.setCostoTotalArs(item.getCostoTotalArs());
+        pedido.setTipoServicio(item.getTipoServicio());
+        pedido.setOrigen(item.getOrigen());
+        pedido.setMetodoPago(metodoPago);
+
+        BigDecimal total = item.getCostoTotalArs().setScale(2, RoundingMode.HALF_UP);
+
+        if (forwarding) {
+            pedido.setEstado(EstadoPedido.confirmado_sin_pago);
+            pedido.setMontoSaldo(total);
+            pedidoRepository.save(pedido);
+
+            return new ConfirmarItemResponse(
+                    pedidoId, "forwarding",
+                    null, null, total,
+                    metodoPago, null, null, null,
+                    "Tu pedido fue creado. Te avisamos por email cuando tu envío llegue a Buenos Aires para coordinar el pago.");
+        }
+
+        // Completo — seña 50 %
+        BigDecimal sena  = total.divide(BigDecimal.valueOf(2), 2, RoundingMode.HALF_UP);
+        BigDecimal saldo = total.subtract(sena);
+
+        pedido.setEstado(EstadoPedido.esperando_sena);
+        pedido.setMontoSena(sena);
+        pedido.setMontoSaldo(saldo);
+        pedidoRepository.save(pedido);
+
+        return switch (metodoPago) {
+            case "cripto" -> {
+                BigDecimal senaUsdt = item.getPrecioFinalUsd()
+                        .divide(BigDecimal.valueOf(2), 2, RoundingMode.HALF_UP);
+                String nota = String.format(
+                        "Transferí exactamente %s USDT (seña del 50%%). Escribí %s en el memo. " +
+                        "El saldo restante ($%s ARS) se paga cuando el producto llegue a BsAs.",
+                        senaUsdt, pedidoId, saldo.toPlainString());
+                yield new ConfirmarItemResponse(
+                        pedidoId, "completo", sena, saldo, null,
+                        metodoPago, null,
+                        new CriptoInstrucciones(usdtRed, usdtDireccion, senaUsdt, nota), null, null);
+            }
+            case "transferencia" -> {
+                String nota = String.format(
+                        "Transferí exactamente $%s ARS (seña del 50%%). Incluí %s en el concepto. " +
+                        "El saldo restante ($%s ARS) se paga cuando el producto llegue a BsAs.",
+                        sena.toPlainString(), pedidoId, saldo.toPlainString());
+                yield new ConfirmarItemResponse(
+                        pedidoId, "completo", sena, saldo, null,
+                        metodoPago, null, null,
+                        new TransferenciaInstrucciones(
+                                transferenciaBanco, transferenciaTitular,
+                                transferenciaCbu, transferenciaAlias, sena, "ARS", nota), null);
+            }
+            default -> throw new IllegalArgumentException("Método de pago inválido: " + metodoPago);
         };
     }
 

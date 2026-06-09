@@ -85,6 +85,25 @@ public class AdminController {
         return ResponseEntity.ok(adminService.confirmarPago(id, req));
     }
 
+    @PostMapping("/pedidos/{id}/confirmar-sena")
+    public ResponseEntity<PedidoAdminDTO> confirmarSena(
+            @PathVariable String id,
+            @RequestBody(required = false) ConfirmarPagoRequest req) {
+        return ResponseEntity.ok(adminService.confirmarSena(id, req));
+    }
+
+    @PostMapping("/pedidos/{id}/notificar-llegada")
+    public ResponseEntity<PedidoAdminDTO> notificarLlegada(@PathVariable String id) {
+        return ResponseEntity.ok(adminService.notificarLlegada(id));
+    }
+
+    @PostMapping("/pedidos/{id}/confirmar-saldo")
+    public ResponseEntity<PedidoAdminDTO> confirmarSaldo(
+            @PathVariable String id,
+            @RequestBody(required = false) ConfirmarPagoRequest req) {
+        return ResponseEntity.ok(adminService.confirmarSaldo(id, req));
+    }
+
     // ── Vendedores ───────────────────────────────────────────────────────────
 
     @GetMapping("/vendedores")

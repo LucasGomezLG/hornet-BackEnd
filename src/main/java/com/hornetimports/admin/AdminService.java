@@ -175,6 +175,62 @@ public class AdminService {
         return PedidoAdminDTO.from(p);
     }
 
+    // ── Seña y saldo ─────────────────────────────────────────────────────────
+
+    @Transactional
+    public PedidoAdminDTO confirmarSena(String pedidoId, ConfirmarPagoRequest req) {
+        Pedido p = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado"));
+        if (p.getEstado() != EstadoPedido.esperando_sena) {
+            throw new IllegalStateException("El pedido no está esperando seña");
+        }
+        p.setEstado(EstadoPedido.sena_confirmada);
+        if (req != null && req.referencia() != null) p.setPagoReferencia(req.referencia());
+        pedidoRepository.save(p);
+        emailService.sendSenaConfirmada(p.getUser().getEmail(), p.getProductoNombre(), p.getId());
+        return PedidoAdminDTO.from(p);
+    }
+
+    @Transactional
+    public PedidoAdminDTO notificarLlegada(String pedidoId) {
+        Pedido p = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado"));
+        boolean forwarding = "forwarding".equals(p.getTipoServicio());
+        if (forwarding) {
+            if (p.getEstado() != EstadoPedido.en_aduana) {
+                throw new IllegalStateException("El pedido forwarding no está en aduana");
+            }
+            p.setEstado(EstadoPedido.esperando_pago);
+        } else {
+            if (p.getEstado() != EstadoPedido.en_aduana) {
+                throw new IllegalStateException("El pedido no está en aduana");
+            }
+            p.setEstado(EstadoPedido.esperando_saldo);
+        }
+        pedidoRepository.save(p);
+        emailService.sendProductoLlegoABsAs(
+                p.getUser().getEmail(), p.getProductoNombre(), p.getId(),
+                forwarding ? p.getCostoTotalArs() : p.getMontoSaldo());
+        return PedidoAdminDTO.from(p);
+    }
+
+    @Transactional
+    public PedidoAdminDTO confirmarSaldo(String pedidoId, ConfirmarPagoRequest req) {
+        Pedido p = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado"));
+        boolean forwarding = "forwarding".equals(p.getTipoServicio());
+        EstadoPedido estadoEsperado = forwarding
+                ? EstadoPedido.esperando_pago : EstadoPedido.esperando_saldo;
+        if (p.getEstado() != estadoEsperado) {
+            throw new IllegalStateException("El pedido no está en estado " + estadoEsperado);
+        }
+        p.setEstado(forwarding ? EstadoPedido.pago_confirmado : EstadoPedido.saldo_confirmado);
+        if (req != null && req.referencia() != null) p.setSaldoReferencia(req.referencia());
+        pedidoRepository.save(p);
+        emailService.sendSaldoConfirmado(p.getUser().getEmail(), p.getProductoNombre(), p.getId());
+        return PedidoAdminDTO.from(p);
+    }
+
     // ── Vendedores ───────────────────────────────────────────────────────────
 
     public List<VendedorDTO> getVendedores() {
@@ -223,14 +279,32 @@ public class AdminService {
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 
-    private static final Map<EstadoPedido, Set<EstadoPedido>> TRANSICIONES_VALIDAS = Map.of(
-            EstadoPedido.en_proceso,  Set.of(EstadoPedido.comprado, EstadoPedido.cancelado),
-            EstadoPedido.comprado,    Set.of(EstadoPedido.en_transito, EstadoPedido.cancelado),
-            EstadoPedido.en_transito, Set.of(EstadoPedido.en_aduana, EstadoPedido.cancelado),
-            EstadoPedido.en_aduana,   Set.of(EstadoPedido.entregado, EstadoPedido.cancelado),
-            EstadoPedido.entregado,   Set.of(),
-            EstadoPedido.cancelado,   Set.of()
-    );
+    private static final Map<EstadoPedido, Set<EstadoPedido>> TRANSICIONES_VALIDAS;
+    static {
+        Map<EstadoPedido, Set<EstadoPedido>> m = new java.util.HashMap<>();
+        // Legacy
+        m.put(EstadoPedido.en_proceso,          Set.of(EstadoPedido.comprado,           EstadoPedido.cancelado));
+        m.put(EstadoPedido.comprado,             Set.of(EstadoPedido.en_transito,        EstadoPedido.cancelado));
+        // Nuevo completo
+        m.put(EstadoPedido.esperando_sena,       Set.of(EstadoPedido.sena_confirmada,    EstadoPedido.cancelado));
+        m.put(EstadoPedido.sena_confirmada,      Set.of(EstadoPedido.en_transito,        EstadoPedido.cancelado));
+        // Forwarding
+        m.put(EstadoPedido.confirmado_sin_pago,  Set.of(EstadoPedido.en_transito,        EstadoPedido.cancelado));
+        // Logística compartida
+        m.put(EstadoPedido.en_transito,          Set.of(EstadoPedido.en_aduana,          EstadoPedido.cancelado));
+        m.put(EstadoPedido.en_aduana,            Set.of(EstadoPedido.esperando_saldo,    EstadoPedido.esperando_pago,
+                                                        EstadoPedido.entregado,          EstadoPedido.cancelado));
+        // Pago final completo
+        m.put(EstadoPedido.esperando_saldo,      Set.of(EstadoPedido.saldo_confirmado,   EstadoPedido.cancelado));
+        m.put(EstadoPedido.saldo_confirmado,     Set.of(EstadoPedido.entregado));
+        // Pago final forwarding
+        m.put(EstadoPedido.esperando_pago,       Set.of(EstadoPedido.pago_confirmado,    EstadoPedido.cancelado));
+        m.put(EstadoPedido.pago_confirmado,      Set.of(EstadoPedido.entregado));
+        // Finales
+        m.put(EstadoPedido.entregado,            Set.of());
+        m.put(EstadoPedido.cancelado,            Set.of());
+        TRANSICIONES_VALIDAS = java.util.Collections.unmodifiableMap(m);
+    }
 
     private void validarTransicion(EstadoPedido actual, EstadoPedido nuevo) {
         Set<EstadoPedido> validos = TRANSICIONES_VALIDAS.getOrDefault(actual, Set.of());

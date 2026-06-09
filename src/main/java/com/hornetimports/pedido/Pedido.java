@@ -1,6 +1,7 @@
 package com.hornetimports.pedido;
 
 import com.hornetimports.cotizador.Cotizacion;
+import com.hornetimports.solicitud.SolicitudItem;
 import com.hornetimports.user.Profile;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -9,6 +10,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "pedidos")
@@ -59,6 +61,24 @@ public class Pedido {
 
     @Column(name = "pago_referencia")
     private String pagoReferencia;
+
+    // ── Seña / saldo (nuevo flujo) ────────────────────────────────────────────
+
+    @Column(name = "monto_sena", precision = 14, scale = 2)
+    private BigDecimal montoSena;
+
+    @Column(name = "monto_saldo", precision = 14, scale = 2)
+    private BigDecimal montoSaldo;
+
+    @Column(name = "metodo_pago_saldo")
+    private String metodoPagoSaldo;
+
+    @Column(name = "saldo_referencia")
+    private String saldoReferencia;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "solicitud_item_id")
+    private SolicitudItem solicitudItem;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt = OffsetDateTime.now();

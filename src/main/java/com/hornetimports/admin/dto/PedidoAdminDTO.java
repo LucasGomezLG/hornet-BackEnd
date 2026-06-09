@@ -13,11 +13,14 @@ public record PedidoAdminDTO(
         BigDecimal precioUsd,
         BigDecimal costoTotalArs,
         EstadoPedido estado,
+        String tipoServicio,
         String metodoPago,
         String pagoReferencia,
+        BigDecimal montoSena,
+        BigDecimal montoSaldo,
+        String saldoReferencia,
         String trackingCode,
         String trackingCodigoCliente,
-        String tipoServicio,
         OffsetDateTime createdAt,
         OffsetDateTime updatedAt
 ) {
@@ -26,8 +29,10 @@ public record PedidoAdminDTO(
                 p.getId(),
                 p.getUser() != null ? p.getUser().getEmail() : null,
                 p.getProductoNombre(), p.getPrecioUsd(), p.getCostoTotalArs(),
-                p.getEstado(), p.getMetodoPago(), p.getPagoReferencia(),
+                p.getEstado(), p.getTipoServicio(),
+                p.getMetodoPago(), p.getPagoReferencia(),
+                p.getMontoSena(), p.getMontoSaldo(), p.getSaldoReferencia(),
                 p.getTrackingCode(), p.getTrackingCodigoCliente(),
-                p.getTipoServicio(), p.getCreatedAt(), p.getUpdatedAt());
+                p.getCreatedAt(), p.getUpdatedAt());
     }
 }
