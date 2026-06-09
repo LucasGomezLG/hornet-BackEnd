@@ -1,7 +1,7 @@
 package com.hornetimports.admin;
 
 import com.hornetimports.admin.dto.*;
-import com.hornetimports.tienda.TiendaProducto;
+import com.hornetimports.tienda.dto.TiendaProductoDTO;
 import com.hornetimports.user.Profile;
 import com.hornetimports.vendedor.CloudinaryService;
 import com.hornetimports.vendedor.dto.FirmaResponse;
@@ -114,7 +114,7 @@ public class AdminController {
     // ── Tienda CRUD ──────────────────────────────────────────────────────────
 
     @GetMapping("/tienda")
-    public ResponseEntity<Page<TiendaProducto>> getTienda(
+    public ResponseEntity<Page<TiendaProductoDTO>> getTienda(
             @RequestParam(defaultValue = "0")  int page,
             @RequestParam(defaultValue = "50") int size) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -122,21 +122,21 @@ public class AdminController {
     }
 
     @PostMapping("/tienda")
-    public ResponseEntity<TiendaProducto> crearTiendaProducto(
+    public ResponseEntity<TiendaProductoDTO> crearTiendaProducto(
             @Valid @RequestBody CrearTiendaProductoRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(adminService.crearTiendaProducto(req));
     }
 
     @PutMapping("/tienda/{id}")
-    public ResponseEntity<TiendaProducto> actualizarTiendaProducto(
+    public ResponseEntity<TiendaProductoDTO> actualizarTiendaProducto(
             @PathVariable UUID id,
             @Valid @RequestBody CrearTiendaProductoRequest req) {
         return ResponseEntity.ok(adminService.actualizarTiendaProducto(id, req));
     }
 
     @PatchMapping("/tienda/{id}/toggle")
-    public ResponseEntity<TiendaProducto> toggleTiendaProducto(@PathVariable UUID id) {
+    public ResponseEntity<TiendaProductoDTO> toggleTiendaProducto(@PathVariable UUID id) {
         return ResponseEntity.ok(adminService.toggleTiendaProducto(id));
     }
 

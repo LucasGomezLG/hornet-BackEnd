@@ -13,6 +13,7 @@ public record TiendaProductoDTO(
         BigDecimal precioUsd,
         int stock,
         boolean destacado,
+        boolean activo,
         String imagenUrl,
         UUID subcategoriaId,
         String subcategoriaNombre
@@ -22,7 +23,7 @@ public record TiendaProductoDTO(
         String subNombre = p.getSubcategoria() != null ? p.getSubcategoria().getNombre() : null;
         return new TiendaProductoDTO(
                 p.getId(), p.getNombre(), p.getDescripcion(), p.getCategoria(),
-                p.getPrecioUsd(), p.getStock(), p.isDestacado(), p.getImagenUrl(),
-                subId, subNombre);
+                p.getPrecioUsd(), p.getStock(), p.isDestacado(), p.isActivo(),
+                p.getImagenUrl(), subId, subNombre);
     }
 }

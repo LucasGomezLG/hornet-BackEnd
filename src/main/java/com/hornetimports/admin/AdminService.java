@@ -250,32 +250,33 @@ public class AdminService {
 
     // ── Tienda (CRUD admin) ──────────────────────────────────────────────────
 
-    public Page<TiendaProducto> getTiendaProductos(Pageable pageable) {
-        return tiendaRepository.findAll(pageable);
+    @Transactional(readOnly = true)
+    public Page<com.hornetimports.tienda.dto.TiendaProductoDTO> getTiendaProductos(Pageable pageable) {
+        return tiendaRepository.findAll(pageable).map(com.hornetimports.tienda.dto.TiendaProductoDTO::from);
     }
 
     @Transactional
-    public TiendaProducto crearTiendaProducto(CrearTiendaProductoRequest req) {
+    public com.hornetimports.tienda.dto.TiendaProductoDTO crearTiendaProducto(CrearTiendaProductoRequest req) {
         TiendaProducto p = new TiendaProducto();
         mapearTiendaProducto(p, req);
         p.setActivo(true);
-        return tiendaRepository.save(p);
+        return com.hornetimports.tienda.dto.TiendaProductoDTO.from(tiendaRepository.save(p));
     }
 
     @Transactional
-    public TiendaProducto actualizarTiendaProducto(UUID id, CrearTiendaProductoRequest req) {
+    public com.hornetimports.tienda.dto.TiendaProductoDTO actualizarTiendaProducto(UUID id, CrearTiendaProductoRequest req) {
         TiendaProducto p = tiendaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado"));
         mapearTiendaProducto(p, req);
-        return tiendaRepository.save(p);
+        return com.hornetimports.tienda.dto.TiendaProductoDTO.from(tiendaRepository.save(p));
     }
 
     @Transactional
-    public TiendaProducto toggleTiendaProducto(UUID id) {
+    public com.hornetimports.tienda.dto.TiendaProductoDTO toggleTiendaProducto(UUID id) {
         TiendaProducto p = tiendaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado"));
         p.setActivo(!p.isActivo());
-        return tiendaRepository.save(p);
+        return com.hornetimports.tienda.dto.TiendaProductoDTO.from(tiendaRepository.save(p));
     }
 
     @Transactional
