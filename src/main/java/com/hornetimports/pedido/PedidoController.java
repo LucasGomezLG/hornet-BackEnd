@@ -1,8 +1,6 @@
 package com.hornetimports.pedido;
 
-import com.hornetimports.pedido.dto.ConfirmarPedidoRequest;
-import com.hornetimports.pedido.dto.ConfirmarPedidoResponse;
-import com.hornetimports.pedido.dto.SeguimientoPublicoDTO;
+import com.hornetimports.pedido.dto.*;
 import com.hornetimports.user.Profile;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +26,7 @@ public class PedidoController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<Pedido>> getPedidos(
+    public ResponseEntity<Page<PedidoDTO>> getPedidos(
             @AuthenticationPrincipal Profile profile,
             @RequestParam(defaultValue = "0")  int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -37,7 +35,7 @@ public class PedidoController {
     }
 
     @GetMapping("/{pedidoId}")
-    public ResponseEntity<Pedido> getPedido(
+    public ResponseEntity<PedidoDTO> getPedido(
             @PathVariable String pedidoId,
             @AuthenticationPrincipal Profile profile) {
         return ResponseEntity.ok(pedidoService.getPedidoPorId(pedidoId, profile));

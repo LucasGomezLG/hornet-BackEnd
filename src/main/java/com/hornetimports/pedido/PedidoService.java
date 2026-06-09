@@ -182,18 +182,21 @@ public class PedidoService {
         };
     }
 
-    public Page<Pedido> getPedidosUsuario(Profile user, Pageable pageable) {
-        return pedidoRepository.findByUserIdOrderByCreatedAtDesc(user.getId(), pageable);
+    @Transactional(readOnly = true)
+    public Page<PedidoDTO> getPedidosUsuario(Profile user, Pageable pageable) {
+        return pedidoRepository.findByUserIdOrderByCreatedAtDesc(user.getId(), pageable)
+                .map(PedidoDTO::from);
     }
 
-    public Pedido getPedidoPorId(String pedidoId, Profile user) {
+    @Transactional(readOnly = true)
+    public PedidoDTO getPedidoPorId(String pedidoId, Profile user) {
         Pedido p = pedidoRepository.findById(pedidoId)
                 .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado"));
         boolean esAdmin = user.getTipo() == TipoCuenta.admin;
         if (!esAdmin && !p.getUser().getId().equals(user.getId())) {
             throw new AccessDeniedException("Sin acceso a este pedido");
         }
-        return p;
+        return PedidoDTO.from(p);
     }
 
     public SeguimientoPublicoDTO getSeguimientoPublico(String codigo) {
